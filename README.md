@@ -25,10 +25,12 @@ http://www.wiz.cn/zh-cn
 ```
 
 ### Install 安装
+```
 [1] 先从为知笔记官网下载mac 版客户端, 登录自己的账户, 创建笔记
 [2] 下载本工具到mac笔记本任意目录, 然后执行:
     bash start.sh
     Wait for 2min for success
+```
 
 ### Search 搜索
 ```
