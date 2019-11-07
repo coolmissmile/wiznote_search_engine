@@ -1,7 +1,10 @@
 
 ### 说明
+```
 本项目是基于"为知笔记"构建的一个本地搜索引擎, 可以认为是 "为知笔记" + "百度搜索" 的综合效果
 可以实时解析笔记本本机的为知笔记数据, 分钟级别自动更新到搜索引擎中
+```
+
 ```
 这套搜索引擎的基本特性是:
 [1] 目前仅支持 Mac 平台, 主要用 shell + python实现
@@ -17,7 +20,9 @@
 ```
 
 ### 为知笔记官网
+```
 http://www.wiz.cn/zh-cn
+```
 
 ### Install 安装
 [1] 先从为知笔记官网下载mac 版客户端, 登录自己的账户, 创建笔记
@@ -25,12 +30,23 @@ http://www.wiz.cn/zh-cn
     bash start.sh
     Wait for 2min for success
 
-### Error log 
-cat error.log
+### Search 搜索
+```
+使用搜索功能, 打开浏览器, 输入 http://127.0.0.1:9009
+然后会出现和百度类似的搜索框, 输入要搜索的内容点击搜索即可
 
-### Search
 open http://127.0.0.1:9009 on your chrome or safair
+```
 
-### Change Listen Port
-bash change_to_port.sh 8080
+### Change Listen Port 修改端口
+```
+本工具默认启动端口是 9009
+如果和本机其他软件端口冲突了, 可以修改为其他任意端口, 比如修改为 18080
+bash change_to_port.sh 18080
+bash start.sh
+```
 
+### Error log 查看日志
+```
+cat error.log
+```
