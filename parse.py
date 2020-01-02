@@ -8,7 +8,7 @@ import traceback
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-def find_from_tag(soup, tagname, default):
+def _find_title_from_tag(soup, tagname, default):
     content = soup.find_all(tagname, limit=10)
     for i in content:
         text = i.text.encode("utf-8")
@@ -20,18 +20,20 @@ def find_from_tag(soup, tagname, default):
             title = title.replace("\xc2\xa0", "")
             title = title.replace("\n", "_")
             title = title.replace("/", "_")
-            title = title.replace("#", "_")
             title = title.replace("-", "_")
             title = title.replace(">", "_")
             title = title.replace(",", "")
             title = title.replace("!", "")
             title = title.replace("<", "_")
             title = title.replace("=", "")
+            title = title.replace("#", "")
             title = title.replace(" ", "")
             title = title.replace("__", "_")
             title = title.replace("__", "_")
             title = title.replace("__", "_")
             if len(title) == 0:
+                continue
+            if title == "无标题":
                 continue
             title = title[1:] if title[0] == "_" else title
             title = os.path.dirname(default) +"/" + title
@@ -39,20 +41,20 @@ def find_from_tag(soup, tagname, default):
     return None
 
 
-def get_title(soup, default):
-    r = find_from_tag(soup, ["title"], default)
+def _get_title(soup, default):
+    r = _find_title_from_tag(soup, ["title"], default)
     if r:
         return r
-    r = find_from_tag(soup, ["h3", "h4", "h1", "h2", "h5"], default)
+    r = _find_title_from_tag(soup, ["h3", "h4", "h1", "h2", "h5"], default)
     if r:
         return r
-    r = find_from_tag(soup, ["p"], default)
+    r = _find_title_from_tag(soup, ["p"], default)
     if r:
         return r
-    r = find_from_tag(soup, ["span"], default)
+    r = _find_title_from_tag(soup, ["span"], default)
     if r:
         return r
-    r = find_from_tag(soup, ["div"], default)
+    r = _find_title_from_tag(soup, ["div"], default)
     if r:
         return r
     return default.replace(".html", "")
@@ -61,7 +63,7 @@ def parse_html(path):
     try:
         html = open(path, "r").read()
         soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
-        title = get_title(soup, path)
+        title = _get_title(soup, path)
 
         if soup.find("html"):
             ps = soup.find_all(["h3", "h4", "h1", "h2", "h5", "title", "div", "p"])
@@ -110,8 +112,6 @@ def main():
                 continue
             parse_html(ln)
         fd.close()
-
-
 
 if __name__ == "__main__":
     """
