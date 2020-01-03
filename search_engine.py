@@ -86,11 +86,9 @@ class WizIndex(object):
 
     def delete_index(self, notename):
         # notename = extract_7fffa137-579e-49db-973e-d5f282875c59
-        print "aaaaaaaaa, notename", notename
         if notename not in self._docname_docid:
             return
         for i in self._docname_docid[notename]:
-            print "aaaaaaaaa delete_index",i
             self._invalid_docid[i] = 1
         del self._docname_docid[notename]
 
@@ -226,7 +224,6 @@ class WizIndex(object):
     def build_index(self):
         li = self.__index_list()
         for i in li:
-            print "aaaaaaa build_index", i
             docid, _ = self.__get_docid_by_name(i)
             self._all_doc_count += 1
             self.__build_one_index(docid, i)
@@ -551,6 +548,7 @@ class WizIndex(object):
             return ""
         query = query.encode("utf-8")
         query = query.lower()
+        query = " ".join([i for i in query.split(" ") if i])
         return query
 
     def __left_sentence_bound(self, pos, content):
