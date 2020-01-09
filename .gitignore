@@ -1,0 +1,6 @@
+.*
+*.pyc
+error.log
+notes/*
+static
+template
