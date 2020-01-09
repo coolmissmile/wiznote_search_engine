@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import sys
 import traceback
+import time
 
 
 reload(sys)
@@ -40,6 +41,36 @@ def _find_title_from_tag(soup, tagname, default):
             return title
     return None
 
+def _find_title_from_body(soup, default):
+    for i in soup.body.contents:
+        text = i.text.encode("utf-8")
+        if ":" in text or "年" in text or "TOC" in text or "---" in text:
+            continue
+        if len(text) < 64 and len(text) > 6:
+            title = text
+            title = title.replace(" ", "_")
+            title = title.replace("\xc2\xa0", "")
+            title = title.replace("\n", "_")
+            title = title.replace("/", "_")
+            title = title.replace("-", "_")
+            title = title.replace(">", "_")
+            title = title.replace(",", "")
+            title = title.replace("!", "")
+            title = title.replace("<", "_")
+            title = title.replace("=", "")
+            title = title.replace("#", "")
+            title = title.replace(" ", "")
+            title = title.replace("__", "_")
+            title = title.replace("__", "_")
+            title = title.replace("__", "_")
+            if len(title) == 0:
+                continue
+            if title == "无标题":
+                continue
+            title = title[1:] if title[0] == "_" else title
+            title = os.path.dirname(default) +"/" + title
+            return title
+    return None
 
 def _get_title(soup, default):
     r = _find_title_from_tag(soup, ["title"], default)
@@ -48,6 +79,7 @@ def _get_title(soup, default):
     r = _find_title_from_tag(soup, ["h3", "h4", "h1", "h2", "h5"], default)
     if r:
         return r
+    """
     r = _find_title_from_tag(soup, ["p"], default)
     if r:
         return r
@@ -55,6 +87,10 @@ def _get_title(soup, default):
     if r:
         return r
     r = _find_title_from_tag(soup, ["div"], default)
+    if r:
+        return r
+    """
+    r = _find_title_from_body(soup, default)
     if r:
         return r
     return default.replace(".html", "")

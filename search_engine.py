@@ -266,10 +266,38 @@ class WizIndex(object):
         把每个 query 的命中位置对齐到不同粒度的位置
         所有 set 之间交集不为空视为最小紧密度
         """
-
         all_close_weight = None  # 所有 term 之间最大距离
-        part_close_weight = 1000000000 # 任意 term 之间, 最小距离
         for curstep in step:
+            normalize_sets = []
+            for s in poslist:
+                normalize_sets.append(set())
+                for p in s:
+                    mod = p % curstep 
+                    lowbound = p - mod 
+                    highbound = p + (curstep-mod)
+                    normalize_sets[-1].add(lowbound)
+                    normalize_sets[-1].add(highbound)
+
+            ## 求所有集合交集
+            and_set = None
+            for s in normalize_sets:
+                if and_set is None:
+                    and_set = s
+                    continue
+                and_set = and_set & s
+            if and_set and len(and_set) > 0:
+                all_close_weight = curstep
+
+            if all_close_weight:
+                return (2.0)/all_close_weight
+
+        """
+        上面是全部term都比较临近
+        下面是部分term临近
+        """
+        distance = []
+        for curstep in step:
+            part_close_weight = 0 
             normalize_sets = []
             for s in poslist:
                 normalize_sets.append(set())
@@ -283,31 +311,20 @@ class WizIndex(object):
             ## 求任意集合的交集
             or_set = None
             for s in normalize_sets:
-                if part_close_weight < 1000000000:
-                    continue
                 if or_set is None:
                     or_set = s
                     continue
                 if len(or_set & s) > 0:
-                    part_close_weight = curstep
-                    break
-                or_set = or_set | s
-
-            ## 求所有集合交集
-            and_set = None
-            for s in normalize_sets:
-                if and_set is None:
-                    and_set = s
-                    continue
-                and_set = and_set & s
-            if and_set and len(and_set) > 0:
-                all_close_weight = curstep
-
-            if all_close_weight:
-                #print "close_weight docid", docid, all_close_weight, part_close_weight 
-                return 2.0/all_close_weight
-            if part_close_weight < 1000000000:
-                return (1.5/part_close_weight)
+                    part_close_weight += curstep
+                    or_set = or_set | s
+                else:
+                    part_close_weight += 100 
+                    or_set = or_set | s
+            if part_close_weight > 0:
+                distance.append(part_close_weight)
+        distance.sort()
+        if len(distance):
+            return 1.5/(distance[0])
         return 0
 
     def __bestmatch_change_score(self, query, hitlist):
@@ -441,6 +458,7 @@ class WizIndex(object):
         hitlist = self.__bestmatch_change_score(query, hitlist)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
+        logging.debug("检索结果数: %s" % len(sort_docid))
         return sort_docid
 
     def __search_well_match(self, query, limit=50):
@@ -454,6 +472,7 @@ class WizIndex(object):
         hitlist = self.__merge_term_and(result)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
+        logging.debug("检索结果数: %s" % len(sort_docid))
         return sort_docid 
 
     def __search_partmatch(self, query, limit=50):
@@ -468,6 +487,7 @@ class WizIndex(object):
         hitlist = self.__merge_term_or(result)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
+        logging.debug("检索结果数: %s" % len(sort_docid))
         return sort_docid 
 
     def __format_to(self, result, fmt):
@@ -786,7 +806,7 @@ class WizIndex(object):
             if querysign in donequery:
                 continue
             donequery[querysign] = 1
-            logging.debug("query 检索原语: %s"%json.dumps(op, ensure_ascii=False))
+            logging.debug("query 检索原语: %s" % json.dumps(op, ensure_ascii=False))
 
             if op["type"] == "BEST_MATCH":
                 result["BEST_MATCH"] += self.__search_best_match(op["query"])
