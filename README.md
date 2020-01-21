@@ -55,7 +55,7 @@ cat error.log
 ```
 
 ### Demo
-![image](http://github.com/itmyhome2013/readme_add_pic/raw/master/images/nongshalie.jpg)
+![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
 
 
 ### 联系我
