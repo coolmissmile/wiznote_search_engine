@@ -54,6 +54,10 @@ bash start.sh
 cat error.log
 ```
 
+### Demo
+![image](http://github.com/itmyhome2013/readme_add_pic/raw/master/images/nongshalie.jpg)
+
+
 ### 联系我
 ```
 mailto  1256268688@qq.com
