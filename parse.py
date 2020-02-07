@@ -74,6 +74,9 @@ def _find_title_from_body(soup, default):
     return None
 
 def _get_title(soup, default):
+    r = _find_title_from_body(soup, default)
+    if r:
+        return r
     r = _find_title_from_tag(soup, ["title"], default)
     if r:
         return r
@@ -91,9 +94,6 @@ def _get_title(soup, default):
     if r:
         return r
     """
-    r = _find_title_from_body(soup, default)
-    if r:
-        return r
     return default.replace(".html", "")
 
 def parse_html(path):
