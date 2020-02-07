@@ -4,6 +4,7 @@ import os
 import sys
 import traceback
 import time
+import html2text
 
 
 reload(sys)
@@ -98,26 +99,18 @@ def _get_title(soup, default):
 def parse_html(path):
     try:
         html = open(path, "r").read()
+        h2t = html2text.HTML2Text()
+        h2t.inline_links = False
+        h2t.ignore_links = False
+        h2t.ignore_images = False
         soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
         title = _get_title(soup, path)
 
-        if soup.find("html"):
-            ps = soup.find_all(["h3", "h4", "h1", "h2", "h5", "title", "div", "p"])
-        else:
-            ps = [soup.text]
-        
-        dstfilename = "%s.md"%title
+        dstfilename = "%s.md" % title
         dstfile = open(dstfilename, "w+")
         print "Parse HTML", path, "->", "%s.md"%title
-        for i in ps:
-            dstfile.write(i.text)
-            dstfile.write("\n")
+        dstfile.write(h2t.handle(html))
 
-        ## 是否包含图片
-        img = soup.find_all("img")
-        for i in img:
-            dstfile.write("__HASSSSS__IIIIIIMAGE__") 
-            dstfile.write("\n")
         dstfile.close()
     except Exception as e:
         print "Error %s %s"%(e, path)
