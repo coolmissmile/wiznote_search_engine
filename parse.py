@@ -100,9 +100,9 @@ def parse_html(path):
     try:
         html = open(path, "r").read()
         h2t = html2text.HTML2Text()
-        h2t.inline_links = False
-        h2t.ignore_links = False
-        h2t.ignore_images = False
+        h2t.inline_links = True
+        h2t.ignore_links = True 
+        h2t.ignore_images = True 
         soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
         title = _get_title(soup, path)
 
