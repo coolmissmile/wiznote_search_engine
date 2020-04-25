@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # 检查机器环境
-test -d "/Applications/App Store.app" || echo "只支持 Mac 平台"
-test -d "/Applications/App Store.app" || exit 255
+if [ "$(uname)" != "Darwin" ]; then
+    echo "只支持 Mac 平台" 
+    exit 255
+fi
+
+
 
 WORKROOT=`pwd`
 
