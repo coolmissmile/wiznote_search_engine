@@ -774,6 +774,7 @@ class WizIndex(object):
     def __query_analyze(self, query):
         """
             把原始 query 扩展出多个检索原语
+            [ {"query": "python 第五方", "type": "BEST_MATCH"}, {}, {} ]
         """
         r = []
         if " -" not in query:
@@ -815,7 +816,8 @@ class WizIndex(object):
                 result["WELL_MATCH"] += self.__search_well_match(op["query"])
 
             if op["type"] == "PART_MATCH":
-                #result["PART_MATCH"] += self.__search_partmatch(op["query"])
+                if len(result["BEST_MATCH"]) + len(result["WELL_MATCH"]) < 3:
+                    result["PART_MATCH"] += self.__search_partmatch(op["query"])
                 pass
 
         # 减法
