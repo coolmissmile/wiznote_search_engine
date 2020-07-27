@@ -158,7 +158,7 @@ class somehtml:
             md = open(i).read()
             if "__HASSSSS__IIIIIIMAGE__" in md:
                 break
-            if "[TOC]" in md and "```" in md:
+            if "[TOC]" in md or "```" in md:
                 # 渲染 markdown
                 return self.md2html(md)
 
