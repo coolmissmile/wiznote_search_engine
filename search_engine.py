@@ -40,7 +40,10 @@ def print_backtrace():
 
 class WizIndex(object):
     def __init__(self):
-        self._docid_name_map = {} # 正排信息, [docid]["attr"][term_hash][0]
+        self._docid_name_map = {} # 正排信息
+        # self._docid_name_map[docid]["doc"]
+        # self._docid_name_map[docid]["attr"]
+
         self._index          = {} # 倒排信息, {"hash(term)": set(doc1, doc2, doc3, ...)}
         self._idf            = {}
         self._all_doc_count  = 0
@@ -65,7 +68,7 @@ class WizIndex(object):
         docid, is_new_doc = self.__get_docid_by_name(indexname)
         if is_new_doc:
             self._all_doc_count += 1
-        self.__build_one_index(docid, indexname)
+        self.__build_one_page(docid, indexname)
 
     def update_notelist(self):
         wiz_note_set = {}
@@ -129,17 +132,15 @@ class WizIndex(object):
             i += 1
         return result.keys()
 
-    def __build_one_index(self, docid, filename):
-        if filename == "" or filename is None:
-            return
-
+    def __build_one_page_attr(self, filename):
         # 构建正排信息
         docname = filename.replace(".word", ".md")
-        if docid not in self._docid_name_map:
-            self._docid_name_map[docid] = {}
-        self._docid_name_map[docid]["doc"] = "%s/%s"%(os.getcwd(), docname.decode("utf-8").encode("utf-8") )
-        self._docid_name_map[docid]["doc"] = self._docid_name_map[docid]["doc"].replace("/./", '/')
+        #ret = "%s/%s"%(os.getcwd(), docname.decode("utf-8").encode("utf-8") )
+        ret = "%s/%s"%(os.getcwd(), docname)
+        ret = ret.replace("/./", '/')
+        return ret 
 
+    def __build_one_page_index(self, docid, filename):
         # 构建倒排
         fd = open(filename, "r")
         fc = fd.read()
@@ -148,53 +149,89 @@ class WizIndex(object):
         terms = fc.split("\n")
         terms += self.__extend_terms(terms)
 
-        docattr = {}
+        # [query][词位置]
+        # [query][TF打分]
+        docattr = {} 
+
         try:
-            # for all term -> index
-            term_pos = 0
-            important_english = 0
-            markdown_tiquan = 0
+            ## term 列表 转换为 词频
+            term_cnt = {}
             for c in terms:
-                term_pos += 1
+                if c not in term_cnt:
+                    term_cnt[c] = 0 
+                term_cnt[c] += 1
+
+            ## 倒排
+            for c in term_cnt:
                 cc = hash(c)
-                
-                if c == "toc":
-                    markdown_tiquan = 0.2
                 if cc not in self._index:
                     self._index[cc] = set()
                 self._index[cc].add(docid)
 
-                """
-                ## idf
-                if cc not in self._idf:
-                    self._idf[cc] = 0
-                self._idf[cc] += 1
-                """
-
-                ## 计算位置
+            # 初始化docattr
+            for c in terms:
+                cc = hash(c)
                 if cc not in docattr:
                     docattr[cc] = {}
-                    docattr[cc][KEY_TERM_POS] = [] 
                     docattr[cc][KEY_TF_INDEX] = 0 
+                    docattr[cc][KEY_TERM_POS] = [] 
 
+            # 词位置
+            for term_pos, c in enumerate(terms):
+                cc = hash(c)
                 docattr[cc][KEY_TERM_POS].append(term_pos)
-                docattr[cc][KEY_TF_INDEX] = (1+(docattr[cc][1] *1.0* len(terms)))/len(terms)  # TF
 
-                ## 根据短语长度调整 tf
+            # 计算 TF
+            PAGE_TERM_COUNT = 1.0*len(terms)
+            K = 2.0*(1 - 0.75 + 0.75*PAGE_TERM_COUNT/300.0)
+            for c in term_cnt:
+                cc = hash(c)
+                tf = term_cnt[c]/PAGE_TERM_COUNT
+                tf = math.sqrt(tf)
+                tf = ((2.0 + 1) * tf) / (K + tf)
+                docattr[cc][KEY_TF_INDEX] = tf 
+
+            # 前几个英文单词提权
+            important_english = 0
+            for i, c in enumerate(terms):
+                cc = hash(c)
+                if c.isalpha() and important_english < 10:
+                    important_english += 1
+                    docattr[cc][KEY_TF_INDEX] = self.__change_score(docattr[cc][KEY_TF_INDEX], len(c))
+                if i > 20:
+                    break
+
+            # markdown 提权
+            markdown_tiquan = 0
+            for c in terms:
+                cc = hash(c)
+                if c == "toc":
+                    markdown_tiquan = 0.2
                 if markdown_tiquan:
                     docattr[cc][KEY_TF_INDEX] = self.__change_score(docattr[cc][KEY_TF_INDEX], markdown_tiquan)
+
+            # 根据短语长度调整 tf
+            for c in term_cnt:
+                cc = hash(c)
                 if len(c) > 5:
                     docattr[cc][KEY_TF_INDEX] = self.__change_score(docattr[cc][KEY_TF_INDEX], 0.01*len(c))
 
-                ## 前几个英文单词提权
-                if important_english < 10 and c.isalpha():
-                    important_english += 1
-                    docattr[cc][KEY_TF_INDEX] = self.__change_score(docattr[cc][KEY_TF_INDEX], len(c))
-
-            self._docid_name_map[docid]["attr"] = docattr 
-
         except Exception as e:
-            print "Error %s"%e
+            print traceback.format_exc()
+        return docattr
+
+    def __build_one_page(self, docid, filename):
+        if filename == "" or filename is None:
+            return
+
+        if docid not in self._docid_name_map:
+            self._docid_name_map[docid] = {}
+        # 构建正排信息
+        self._docid_name_map[docid]["doc"] = self.__build_one_page_attr(filename) 
+
+        # 构建倒排信息
+        self._docid_name_map[docid]["attr"] = self.__build_one_page_index(docid, filename)
+
 
     def __add_score(self, score, weight):
         return score + weight
@@ -222,11 +259,11 @@ class WizIndex(object):
         return y
 
     def build_index(self):
-        li = self.__index_list()
-        for i in li:
+        docs = self.__index_list()
+        for i in docs:
             docid, _ = self.__get_docid_by_name(i)
             self._all_doc_count += 1
-            self.__build_one_index(docid, i)
+            self.__build_one_page(docid, i)
 
     def __seek_one_term(self, term):
         # return {} -> [dockid]: {"docid":, "score":}
@@ -235,9 +272,13 @@ class WizIndex(object):
         if termhash in self._index:
             for docid in self._index[termhash]:
                 TF = self._docid_name_map[docid]["attr"][termhash][KEY_TF_INDEX]
-                IDF = (1.0 * self._all_doc_count)/len(self._index[termhash])
-                TFIDF = self.__change_score(TF, IDF)
-                #TFIDF = math.log(IDF, 10) * TF 
+                # 旧公式
+                #IDF = (1.0 * self._all_doc_count)/len(self._index[termhash]) 
+
+                # 新公式
+                IDF = 1.0 + (self._all_doc_count - len(self._index[termhash]) + 0.5) / (len(self._index[termhash]) + 0.5)
+                IDF = math.log(IDF, 10)
+                TFIDF = 1.0 * TF * IDF 
                 r[docid] = {
                     "score": TFIDF, 
                     "pos":   self._docid_name_map[docid]["attr"][termhash][KEY_TERM_POS],
@@ -334,73 +375,103 @@ class WizIndex(object):
         return hitlist
 
     def __merge_term_or(self, hitmap):
-        # return a list
-        # [] = {"score":0, "pos":, "docid":}
-        res = {}
-        for query in hitmap:
-            # m is query
-            # hitmap[m] is a map of hit result
-            for docid in hitmap[query]:
+        res = {} 
+        for term in hitmap:
+            for docid in hitmap[term]:
                 if docid not in res:
-                    res[docid] = hitmap[query][docid]
-                    continue
-                if hitmap[query][docid]["score"] > res[docid]["score"]: 
-                    res[docid] = hitmap[query][docid]
-        hitlist = []
-        for i in res:
-            hitlist.append(res[i])
-        return hitlist
+                    res[docid] = {} 
+                    res[docid]["score"] = 0
+                    res[docid]["poslist"] = {} 
+                    res[docid]["docid"] = "" 
+                    res[docid]["hitterm"] = {} 
+                # TF-IDF 累加
+                res[docid]["score"] += hitmap[term][docid]["score"]
+                # 所有term位置
+                res[docid]["poslist"][term] = hitmap[term][docid]["pos"]
+                # 文档id
+                res[docid]["docid"] = docid 
+                # 该文档命了哪些term
+                res[docid]["hitterm"][term] = 1
+        return res.values()
+
+    def _get_term_weight(self, query_terms):
+        ori_terms = {}
+        for i in query_terms:
+            ori_terms[i] = 1
+        return ori_terms 
+
+    def _mod_score_by_term_weight(self, query_terms, hitmap):
+        return hitmap
+
+    def _mod_score_by_term_count(self, query_terms, result_list):
+        ori_terms = self._get_term_weight(query_terms)     
+        fullcount = len(ori_terms)*1.0
+        for i in result_list:
+            # 命中term的数量
+            hit_count = len(i["hitterm"])
+            add_score = 1.0* hit_count
+            i["score"] = self.__add_score(i["score"], add_score) 
+        return result_list
+
+    def _mod_score_by_close_weight(self, result_list):
+        # 计算term之间紧密度
+        for i in result_list:
+            pos_list = i["poslist"].values()
+            close_weight = self.__close_weight(i["docid"], pos_list)
+            i["score"] = self.__add_score(i["score"], close_weight)
+        return result_list 
 
     def __merge_term_and(self, hitmap):
         """
         求取每个关键词的文档 交集
         并且多个词命中的相同文档, 需要计算紧密度
 
-        return a list
-        [] = {"score":0, "pos":, "docid":}
-
+        Returns:
+            return a list, 
+            res["score"] = 0.3
+            res["poslist"] = {term: [pos1, pos2], term2:[pos3, pos4]} 
+            res["docid"] = "" 
+            res["hitterm"] = {term:1, term:1, term:1} 
         """
 
         ## 文档交集列表, 仅 docid
         and_set = None
-        for query in hitmap:
+        for term in hitmap:
             if and_set is None:
-                and_set = set(hitmap[query])
+                and_set = set(hitmap[term])
                 continue
-            and_set = and_set & set(hitmap[query])
+            and_set = and_set & set(hitmap[term])
 
         # 初始化交集文档的初始score 值
         res = {} 
-        for query in hitmap:
-            for docid in hitmap[query]:
+        for term in hitmap:
+            for docid in hitmap[term]:
                 if docid not in and_set:
                     continue
                 if docid not in res:
-                    res[docid] = hitmap[query][docid]
+                    res[docid] = {} 
+                    res[docid]["score"] = 0
+                    res[docid]["poslist"] = {} 
+                    res[docid]["docid"] = "" 
+                    res[docid]["hitterm"] = {} 
+                # TF-IDF 累加
+                res[docid]["score"] += hitmap[term][docid]["score"]
+                # 所有term位置
+                res[docid]["poslist"][term] = hitmap[term][docid]["pos"]
+                # 文档id
+                res[docid]["docid"] = docid 
+                # 该文档命了哪些term
+                res[docid]["hitterm"][term] = 1
 
-        # 计算term之间紧密度
-        for docid in and_set:
-            pos_list = []  # 搜集每个 term 在该文档里的命中位置
-            avgscore = 0
-            for query in hitmap:
-                pos_list.append(set(hitmap[query][docid]["pos"]))
-                # 计算每个词的打分, 加权平均值
-                avgscore = self.__avg_score(avgscore, hitmap[query][docid]["score"])
-
-            res[docid]["score"] = avgscore - int(avgscore)
-            close_weight = self.__close_weight(docid, pos_list)
-            res[docid]["score"] = self.__add_score(res[docid]["score"], close_weight)
-
-        hitlist = []
-        for i in res:
-            hitlist.append(res[i])
-        return hitlist
+        return res.values()
 
     def __avg_score(self, oldavg, w):
         """
         oldavg 之前的加权平均值
         w 新的因子
         """
+        if w > 100000:
+            w = 100000
         if oldavg < 1.0:
             return 2 + (oldavg+w)/2.0
         count = int(oldavg)
@@ -450,44 +521,67 @@ class WizIndex(object):
 
     def __search_best_match(self, query, limit=50):
         # no word seg
-        result_map = self.__seek_one_term(query)
-        if len(result_map) == 0:
+        # query_result = {"score":, "pos":, "docid"}
+        query_result = self.__seek_one_term(query)
+        if len(query_result) == 0:
             return []
 
-        hitlist = result_map.values() 
+        hitlist = query_result.values() 
         hitlist = self.__bestmatch_change_score(query, hitlist)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("检索结果数: %s" % len(sort_docid))
+        logging.debug("best 检索结果数: %s" % len(sort_docid))
         return sort_docid
 
     def __search_well_match(self, query, limit=50):
         # with word seg
         # all term must hit
-        tokens = query.split(" ")
+        query_terms = query.split(" ")
         result = {}
-        for i in tokens:
+        for i in query_terms:
+            # result[i] = {"score":, "pos":, "docid"}
             result[i] = self.__seek_one_term(i)
 
+        # 根据term 重要性调整分数
+        result = self._mod_score_by_term_weight(query_terms, result)
+        # 拉链归并
         hitlist = self.__merge_term_and(result)
+        # term匹配数调整权值, 匹配3个词 > 匹配2个词 > 匹配一个词
+        hitlist = self._mod_score_by_term_count(query_terms, hitlist)
+        # term紧密度
+        hitlist = self._mod_score_by_close_weight(hitlist)
+        # 排序
         sort_docid = self.__sort_result(hitlist)
+        # 截断
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("检索结果数: %s" % len(sort_docid))
+        logging.debug("well 检索结果数: %s" % len(sort_docid))
         return sort_docid 
 
     def __search_partmatch(self, query, limit=50):
         # with word seg
         # some term can missmatch
-        tokens = query.split(" ")
+        query_terms = query.split(" ")
         result = {}
-        for i in tokens:
+        for i in query_terms:
+            # result[i] = {"score":, "pos":, "docid"}
             result[i] = self.__seek_one_term(i)
             if len(result[i]) == 0:
                 del result[i]
+
+        # 根据term 重要性调整分数
+        result = self._mod_score_by_term_weight(query_terms, result)
+
         hitlist = self.__merge_term_or(result)
+
+        # term匹配数调整权值, 匹配3个词 > 匹配2个词 > 匹配一个词
+        hitlist = self._mod_score_by_term_count(query_terms, hitlist)
+        # term紧密度
+        hitlist = self._mod_score_by_close_weight(hitlist)
+        # 排序
         sort_docid = self.__sort_result(hitlist)
+        # 截断
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("检索结果数: %s" % len(sort_docid))
+        logging.debug("part 检索结果数: %s" % len(sort_docid))
         return sort_docid 
 
     def __format_to(self, result, fmt):

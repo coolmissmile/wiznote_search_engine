@@ -131,7 +131,7 @@ class static_file:
 
 class somehtml:
     def md2html(self, mdstr):
-        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite','markdown.extensions.tables','markdown.extensions.toc', 'markdown.extensions.fenced_code', 'markdown.extensions.codehilite']
+        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite','markdown.extensions.tables','markdown.extensions.toc', 'markdown.extensions.fenced_code', 'markdown.extensions.codehilite', 'markdown.extensions.nl2br']
         html = '''
         <html lang="zh-cn">
         <head>

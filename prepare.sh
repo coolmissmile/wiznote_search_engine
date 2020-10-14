@@ -1,4 +1,3 @@
-
 # cp *.sh *.py  ~/ssd/NETAC/kuaipan/code/python/wiz_note_search/
 # for python 2.7.x
 # not support python 3.x
