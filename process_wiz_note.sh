@@ -50,7 +50,7 @@ if [ "x${RUNMODE}" == "xALL" ];then
     sleep 3
 fi
 
-# 解析 html 生成 text
+# 解析 html 生成 text, 并行执行
 python ${WORKROOT}/parse.py  .htmllist 0 &
 p1=$!
 python ${WORKROOT}/parse.py  .htmllist 1 &

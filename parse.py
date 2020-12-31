@@ -11,66 +11,72 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 def _find_title_from_tag(soup, tagname, default):
-    content = soup.find_all(tagname, limit=10)
-    for i in content:
-        text = i.text.encode("utf-8")
-        if ":" in text or "年" in text or "TOC" in text or "---" in text:
-            continue
-        if len(text) < 64 and len(text) > 6:
-            title = text
-            title = title.replace(" ", "_")
-            title = title.replace("\xc2\xa0", "")
-            title = title.replace("\n", "_")
-            title = title.replace("/", "_")
-            title = title.replace("-", "_")
-            title = title.replace(">", "_")
-            title = title.replace(",", "")
-            title = title.replace("!", "")
-            title = title.replace("<", "_")
-            title = title.replace("=", "")
-            title = title.replace("#", "")
-            title = title.replace(" ", "")
-            title = title.replace("__", "_")
-            title = title.replace("__", "_")
-            title = title.replace("__", "_")
-            if len(title) == 0:
+    try:
+        content = soup.find_all(tagname, limit=10)
+        for i in content:
+            text = i.text.encode("utf-8")
+            if ":" in text or "年" in text or "TOC" in text or "---" in text:
                 continue
-            if title == "无标题":
-                continue
-            title = title[1:] if title[0] == "_" else title
-            title = os.path.dirname(default) +"/" + title
-            return title
+            if len(text) < 64 and len(text) > 6:
+                title = text
+                title = title.replace(" ", "_")
+                title = title.replace("\xc2\xa0", "")
+                title = title.replace("\n", "_")
+                title = title.replace("/", "_")
+                title = title.replace("-", "_")
+                title = title.replace(">", "_")
+                title = title.replace(",", "")
+                title = title.replace("!", "")
+                title = title.replace("<", "_")
+                title = title.replace("=", "")
+                title = title.replace("#", "")
+                title = title.replace(" ", "")
+                title = title.replace("__", "_")
+                title = title.replace("__", "_")
+                title = title.replace("__", "_")
+                if len(title) == 0:
+                    continue
+                if title == "无标题":
+                    continue
+                title = title[1:] if title[0] == "_" else title
+                title = os.path.dirname(default) +"/" + title
+                return title
+    except:
+        pass
     return None
 
 def _find_title_from_body(soup, default):
-    for i in soup.body.contents:
-        text = i.text.encode("utf-8")
-        if ":" in text or "年" in text or "TOC" in text or "---" in text:
-            continue
-        if len(text) < 64 and len(text) > 6:
-            title = text
-            title = title.replace(" ", "_")
-            title = title.replace("\xc2\xa0", "")
-            title = title.replace("\n", "_")
-            title = title.replace("/", "_")
-            title = title.replace("-", "_")
-            title = title.replace(">", "_")
-            title = title.replace(",", "")
-            title = title.replace("!", "")
-            title = title.replace("<", "_")
-            title = title.replace("=", "")
-            title = title.replace("#", "")
-            title = title.replace(" ", "")
-            title = title.replace("__", "_")
-            title = title.replace("__", "_")
-            title = title.replace("__", "_")
-            if len(title) == 0:
+    try:
+        for i in soup.body.find_all(True):
+            text = i.text.encode("utf-8")
+            if ":" in text or "年" in text or "TOC" in text or "---" in text:
                 continue
-            if title == "无标题":
-                continue
-            title = title[1:] if title[0] == "_" else title
-            title = os.path.dirname(default) +"/" + title
-            return title
+            if len(text) < 64 and len(text) > 6:
+                title = text
+                title = title.replace(" ", "_")
+                title = title.replace("\xc2\xa0", "")
+                title = title.replace("\n", "_")
+                title = title.replace("/", "_")
+                title = title.replace("-", "_")
+                title = title.replace(">", "_")
+                title = title.replace(",", "")
+                title = title.replace("!", "")
+                title = title.replace("<", "_")
+                title = title.replace("=", "")
+                title = title.replace("#", "")
+                title = title.replace(" ", "")
+                title = title.replace("__", "_")
+                title = title.replace("__", "_")
+                title = title.replace("__", "_")
+                if len(title) == 0:
+                    continue
+                if title == "无标题":
+                    continue
+                title = title[1:] if title[0] == "_" else title
+                title = os.path.dirname(default) +"/" + title
+                return title
+    except:
+        pass
     return None
 
 def _get_title(soup, default):
@@ -83,10 +89,10 @@ def _get_title(soup, default):
     r = _find_title_from_tag(soup, ["h3", "h4", "h1", "h2", "h5"], default)
     if r:
         return r
-    """
     r = _find_title_from_tag(soup, ["p"], default)
     if r:
         return r
+    """
     r = _find_title_from_tag(soup, ["span"], default)
     if r:
         return r
@@ -99,13 +105,19 @@ def _get_title(soup, default):
 def parse_html(path):
     try:
         html = open(path, "r").read()
-        h2t = html2text.HTML2Text()
+        h2t = html2text.HTML2Text(bodywidth=0)
         h2t.inline_links = True
         h2t.ignore_links = True 
         h2t.ignore_images = True 
+        h2t.single_line_break = True
         soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
         title = _get_title(soup, path)
 
+        """
+        # 提取所有文本, 每个tag是一行
+        for i in soup.body.find_all(True):
+            print i.get_text()
+        """
         dstfilename = "%s.md" % title
         dstfile = open(dstfilename, "w+")
         print "Parse HTML", path, "->", "%s.md"%title
