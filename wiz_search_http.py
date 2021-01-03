@@ -13,6 +13,7 @@ import search_engine as wizsearch
 from string import Template
 import markdown
 
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -38,7 +39,10 @@ htmlcss='''<!Doctype html>
     a{margin: 17px}
     a{margin-top: 25px}
     a{font-style:bold;}
-    a{font-family: Arial, Helvetica, sans-serif	}
+    a{
+        font-family: Arial, Helvetica, sans-serif;	
+        font-size: 16px;
+    }
     a{color:#0066CC}
     a:link { text-decoration: none;}
     a:active { text-decoration:blink}
@@ -50,19 +54,28 @@ htmlcss='''<!Doctype html>
     p{margin: 6px}
     p{margin-left: 16px}
     p{font-style:bold;}
-    p{ text-decoration: none;color: #404040	}
+    p{ 
+        text-decoration: none;
+        color: #111729c4;
+    }
     div {
         background-color: #FFFFFF	;
         width: 800px;
         border: 1.4px solid #F0F0F0;
         padding: 2px;
-        padding-top:8px;
+        padding-top:10px;
         margin: 4px;
+        margin-top: 7px;
         margin-left: 44px;
     }
 
     div:hover {
         border: 1.4px solid #D8D8D8;
+        background-color: #dee6f166;
+    }
+
+    .topstatus {
+        background-color: #e2f1c95c;
     }
 
     .searchText {
@@ -131,7 +144,7 @@ class static_file:
 
 class somehtml:
     def md2html(self, mdstr):
-        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite','markdown.extensions.tables','markdown.extensions.toc', 'markdown.extensions.fenced_code', 'markdown.extensions.codehilite', 'markdown.extensions.nl2br']
+        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite','markdown.extensions.tables','markdown.extensions.toc', 'markdown.extensions.fenced_code', 'markdown.extensions.nl2br']
         html = '''
         <html lang="zh-cn">
         <head>
@@ -143,7 +156,10 @@ class somehtml:
         </body>
         </html>
         '''
+
+
         ret = markdown.markdown(mdstr, extensions = exts)
+        print ret
         return html % ret
 
     def GET(self, name):
@@ -208,7 +224,7 @@ class search(object):
         else:
             timeused = time.time() - web.search_start_time
             timeused = float('%0.4f'%timeused)
-            SEARCH_STATUS="<div><p>共找到 %s 条结果, 耗时 %s 秒</p></div>"%(result_count, timeused)
+            SEARCH_STATUS='''<div class="topstatus"><p>共找到 %s 条结果, 耗时 %s 秒</p></div>''' % (result_count, timeused)
 
         r = templ.substitute(SEARCH_STATUS=SEARCH_STATUS, SEARCHRESULT=result_html, INPUTVALUE='''value="%s" '''%ori_query.encode('utf-8'))
         return r

@@ -11,9 +11,7 @@ import math
 import logging
 import traceback
 
-
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 
 reload(sys)
 sys.setdefaultencoding('utf-8')

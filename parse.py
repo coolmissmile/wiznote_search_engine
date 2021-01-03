@@ -80,19 +80,19 @@ def _find_title_from_body(soup, default):
     return None
 
 def _get_title(soup, default):
-    r = _find_title_from_body(soup, default)
-    if r:
-        return r
     r = _find_title_from_tag(soup, ["title"], default)
     if r:
         return r
     r = _find_title_from_tag(soup, ["h3", "h4", "h1", "h2", "h5"], default)
     if r:
         return r
-    r = _find_title_from_tag(soup, ["p"], default)
+    r = _find_title_from_body(soup, default)
     if r:
         return r
     """
+    r = _find_title_from_tag(soup, ["p"], default)
+    if r:
+        return r
     r = _find_title_from_tag(soup, ["span"], default)
     if r:
         return r
