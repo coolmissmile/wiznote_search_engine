@@ -215,6 +215,18 @@ class search(object):
 
             abstract = j["abstract"]
 
+            if isinstance(dochref, unicode):
+                dochref = dochref.encode('utf-8')
+
+            if isinstance(anchor, unicode):
+                anchor = anchor.encode('utf-8')
+
+            if isinstance(wizhref, unicode):
+                wizhref = wizhref.encode('utf-8')
+
+            if isinstance(abstract, unicode):
+                abstract = abstract.encode('utf-8')
+
             result_html += one_template % (dochref, anchor, wizhref, abstract)
             result_html += "\n"
 
