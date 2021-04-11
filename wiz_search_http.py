@@ -93,11 +93,12 @@ htmlcss='''<!Doctype html>
         height:42px;
         padding: 0;
         font-size: 10px;
-        background-color: #555555;
+        background-color: #681696;
         color: white;
+        border-width: 0px;
     }
     .seachBtnStyle:hover {
-        background-color: #008CBA;
+        background-color: #256141;
     }
 
 </style>
