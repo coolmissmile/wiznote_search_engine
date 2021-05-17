@@ -2,6 +2,7 @@
 
 ### Demo
 ![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
+![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo2.webm)
 
 
 ### 为知笔记-搜索引擎
