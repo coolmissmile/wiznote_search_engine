@@ -2,7 +2,10 @@
 
 ### Demo
 ![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
-![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo2.webm)
+
+<video id="video" controls="" preload="none" poster="封面">
+      <source id="webm" src="https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo2.webm" type="video/webm">
+</videos>
 
 
 ### 为知笔记-搜索引擎
