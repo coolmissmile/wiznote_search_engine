@@ -1,4 +1,9 @@
 ### 2019-11-07
+
+### Demo
+![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
+
+
 ### 为知笔记-搜索引擎
 ```
 本项目是基于"为知笔记"构建的一个本地搜索引擎, 可以认为是 "为知笔记" + "百度搜索" 的综合效果
@@ -54,9 +59,6 @@ bash start.sh
 ```
 cat error.log
 ```
-
-### Demo
-![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
 
 
 ### 联系我
