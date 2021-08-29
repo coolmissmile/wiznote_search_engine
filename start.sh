@@ -43,7 +43,7 @@ done
 if [ -f .start.success ]; then
 	rm -rf .start.success
 	echo "启动成功"
-	echo "Visit: http/127.0.0.1:${WEBPORT}/"
+	echo "Visit: http://127.0.0.1:${WEBPORT}/"
 	exit 0
 fi
 
