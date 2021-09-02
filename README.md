@@ -47,6 +47,20 @@ http://www.wiz.cn/zh-cn
 open http://127.0.0.1:9009 on your chrome or safair
 ```
 
+### 集成到 Alfred
+```
+# 步骤
+1. 打开Alfred设置
+2. Features -> Web Search
+3. 右下角点击 “Add Custom Search”
+4. search URL 填写：  http://127.0.0.1:9009/?query={query}
+   Title 填写： 搜索 为知笔记
+   Keyword 填写： s
+5. 点击Save，即可
+6. 使用方式：快捷键唤出Alfred ， 输入： s {加个空格}  关键词 
+
+```
+
 ### Change Listen Port 修改端口
 ```
 本工具默认启动端口是 9009
