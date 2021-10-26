@@ -29,6 +29,9 @@
 ### 为知笔记官网
 ```
 http://www.wiz.cn/zh-cn
+
+只支持旧版本 为知笔记客户端: https://url.wiz.cn/u/macold  最高版本v2.8.7
+2021年新版本的暂时还不支持 
 ```
 
 ### Install 安装
