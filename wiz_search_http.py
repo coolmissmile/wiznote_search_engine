@@ -158,9 +158,9 @@ class somehtml:
         </html>
         '''
 
+        mdstr = mdstr.replace('[TOC]', '\n\n[TOC]')
 
         ret = markdown.markdown(mdstr, extensions = exts)
-        print ret
         return html % ret
 
     def GET(self, name):
