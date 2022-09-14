@@ -1,4 +1,5 @@
 #! encoding: utf-8
+import bs4
 from bs4 import BeautifulSoup
 import os
 import sys
@@ -121,7 +122,13 @@ def parse_html(path):
         dstfilename = "%s.md" % title
         dstfile = open(dstfilename, "w+")
         print "Parse HTML", path, "->", "%s.md"%title
-        dstfile.write(h2t.handle(html))
+        #dstfile.write(h2t.handle(html))
+
+        item = soup.find("body").children
+        for i in item:
+            if isinstance(i, bs4.element.Tag):
+                dstfile.write(i.get_text())
+                dstfile.write("\n")
 
         dstfile.close()
     except Exception as e:

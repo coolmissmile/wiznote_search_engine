@@ -27,7 +27,6 @@ sleep 2
 echo "后台启动增量更新服务"
 cd $WORKROOT
 bash ${WORKROOT}/incr_update.sh >> error.log 2>&1  &  # 后台执行
-
 bash ${WORKROOT}/clean_log.sh >/dev/null 2>&1 &
 
 
