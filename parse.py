@@ -124,11 +124,10 @@ def parse_html(path):
         print "Parse HTML", path, "->", "%s.md"%title
         #dstfile.write(h2t.handle(html))
 
-        item = soup.find("body").children
-        for i in item:
-            if isinstance(i, bs4.element.Tag):
-                dstfile.write(i.get_text())
-                dstfile.write("\n")
+        item = soup.body
+        for i in item.strings:
+            dstfile.write(i)
+            dstfile.write("\n")
 
         dstfile.close()
     except Exception as e:
