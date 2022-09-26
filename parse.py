@@ -125,8 +125,8 @@ def parse_html(path):
         #dstfile.write(h2t.handle(html))
 
         item = soup.body
-        for i in item.strings:
-            dstfile.write(i)
+        for i in item:
+            dstfile.write(i.get_text())
             dstfile.write("\n")
 
         dstfile.close()
