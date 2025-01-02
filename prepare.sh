@@ -2,7 +2,6 @@
 # for python 2.7.x
 # not support python 3.x
 
-set -e
 
 if [ ! -f .depend.success ];then
     # check python
@@ -15,6 +14,7 @@ if [ ! -f .depend.success ];then
         echo "Error: python MUST be 2.7.x"
         exit 255
     fi
+
 
     # check pip
     which pip || echo "Error: pip not found!"
