@@ -1,59 +1,29 @@
 ### 2019-11-07
-
-### Demo
-![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo2.gif)
-
-
 ### 为知笔记-搜索引擎
 ```
 本项目是基于"为知笔记"构建的一个本地搜索引擎, 可以认为是 "为知笔记" + "百度搜索" 的综合效果
 可以实时解析笔记本本机的为知笔记数据, 搜索速度比原始wiz笔记快很多
 ```
 
-### 使用方法
 ```
 这套搜索引擎的基本特性是:
-[*] 搜索速度比为知笔记本身快几十倍，毫秒级出结果 
-[*] 搜索结果可以点击跳转到为知客户端(见demo视频)
-[*] 使用浏览器 web 页面做为搜索入口
-[*] 目前仅支持 Mac 平台, 主要用 python + shell 实现
-[*] 自动寻找笔记本本地数据, 无需手动拷贝文件
-[*] 实时增量笔记更新和删除(1分钟延迟)
-[*] 支持 markdown 格式自动渲染
-[*] 支持 减法语法查询
-[*] 绝对安全，不会把内容上传到某某网站
+[1] 目前仅支持 Mac 平台, 主要用 shell + python实现
+[2] 自动解析搜索笔记本本地数据
+[3] 使用浏览器 web 页面做为搜索入口
+[3] 支持 query 和文本切词
+[4] 基本原理是使用倒排索引 和 检索拉链归并
+[5] 排序算法一期支持query分词、TFIDF文本相关性、Term紧密度策略、标题提取、高端排序策略。
+    二期计划支持Query改写，Term重要性策略以及上下位概念提取等
+[6] 支持 markdown 格式自动渲染
+[7] 支持 减法语法查询
+[8] 支持摘要自动提取和关键词飘红
+[9] 自动适应新增的笔记和删除的笔记(1分钟延迟)
+[10] 搜索结果可以使用网页形式查看, 也可以链接跳转到为知笔记客户端内
 ```
-
-### 基本原理
-```
-这是一个完整的搜索引擎雏形，麻雀虽小五脏俱全，搜索核心过程和百度、Google等类似。
-引擎的核心过程有抓取、分词、构建倒排数据、query变换、拉链归并、TF-IDF基础相关性排序、term过滤策略和结合高端排序策略。
-
-```
-
-### 搜索策略
-```
-[*] query分词
-[*] query改写
-[*] query扩展
-[*] query忽略
-[*] query上下位概念提取
-[*] TF-IDF文本相关性
-[*] TERM紧密度策略
-[*] TERM重要性策略
-[*] 提权策略（标题提权、权威性提权）
-[*] 高端排序策略(特殊标记提权、markdown提权、时效性提权)
-
-```
-
-
 
 ### 为知笔记官网
 ```
 http://www.wiz.cn/zh-cn
-
-只支持旧版本 为知笔记客户端: https://url.wiz.cn/u/macold  最高版本v2.8.7
-2021年新版本的暂时还不支持 
 ```
 
 ### Install 安装
@@ -72,20 +42,6 @@ http://www.wiz.cn/zh-cn
 open http://127.0.0.1:9009 on your chrome or safair
 ```
 
-### 集成到 Alfred
-```
-# 步骤
-1. 打开Alfred设置
-2. Features -> Web Search
-3. 右下角点击 “Add Custom Search”
-4. search URL 填写：  http://127.0.0.1:9009/?query={query}
-   Title 填写： 搜索 为知笔记
-   Keyword 填写： s
-5. 点击Save，即可
-6. 使用方式：快捷键唤出Alfred ， 输入： s {加个空格}  关键词 
-
-```
-
 ### Change Listen Port 修改端口
 ```
 本工具默认启动端口是 9009
@@ -98,6 +54,9 @@ bash start.sh
 ```
 cat error.log
 ```
+
+### Demo
+![image](https://github.com/coolmissmile/wiznote_search_engine/blob/master/wiz_demo.png)
 
 
 ### 联系我

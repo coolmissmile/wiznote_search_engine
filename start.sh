@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-WORKROOT=`pwd`
+WORKROOT=./
 cd $WORKROOT
 
 echo "安装依赖软件包"
@@ -21,12 +21,13 @@ bash ${WORKROOT}/process_wiz_note.sh  > error.log 2>&1
 echo "启动查询服务"
 cd $WORKROOT
 WEBPORT=9009
-python ${WORKROOT}/wiz_search_http.py ${WEBPORT} >> error.log 2>&1  &
+python ${WORKROOT}/main.py ${WEBPORT} >> error.log 2>&1  &
 sleep 2
 
 echo "后台启动增量更新服务"
 cd $WORKROOT
 bash ${WORKROOT}/incr_update.sh >> error.log 2>&1  &  # 后台执行
+
 bash ${WORKROOT}/clean_log.sh >/dev/null 2>&1 &
 
 

@@ -133,8 +133,8 @@ class update_notelist:
 class delete_index:
     def DELETE(self, notename):
         print "delete_index .........", notename
-        search_note_name = "extract_%s" % (notename)
-        # extract_7fffa137-579e-49db-973e-d5f282875c59
+        search_note_name = "page_%s" % (notename)
+        # page_7fffa137-579e-49db-973e-d5f282875c59
         web.wiz_db.delete_index(search_note_name)
         return """{"code": 200, "reason": "SUCC"}"""
 
@@ -158,9 +158,9 @@ class somehtml:
         </html>
         '''
 
-        mdstr = mdstr.replace('[TOC]', '\n\n[TOC]')
 
         ret = markdown.markdown(mdstr, extensions = exts)
+        print ret
         return html % ret
 
     def GET(self, name):
@@ -201,14 +201,14 @@ class search(object):
 
         result_count = 0
         for j in result:
-            # /Users/freeman/xxxxx.tmp/xx/notes/extract_00a59061-8285-4618-9f3b-0f2ced5ee05f/index.html
+            # /Users/freeman/xxxxx.tmp/xx/notes/page_00a59061-8285-4618-9f3b-0f2ced5ee05f/index.html
             # 链接到本地html
             result_count += 1
             dochref = os.path.dirname(j["doc"])+"/index.html"
             dochref = dochref.replace(RUNTIME_DIR + "/notes", 'file')
 
             # 链接到 为知笔记
-            wizhref = "wiz://open_document?guid=%s"%(j["doc"].split("extract_")[1].split("/")[0])
+            wizhref = "wiz://open_document?guid=%s"%(j["doc"].split("page_")[1].split("/")[0])
 
             #anchor = j["doc"]
             anchor = os.path.basename(j["doc"])

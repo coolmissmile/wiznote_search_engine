@@ -8,7 +8,6 @@ do
 
     # 已删除的笔记
     bash ${WORKROOT}/delete_task.sh
-
     sleep 60
 done
 

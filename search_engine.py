@@ -62,7 +62,7 @@ class WizIndex(object):
         self._keyword.add("####")
 
     def update_index(self, indexname):
-        # indexname = ./notes/extract_7fffa137-579e-49db-973e-d5f282875c59/some_note.word
+        # indexname = ./notes/page_7fffa137-579e-49db-973e-d5f282875c59/some_note.word
         docid, is_new_doc = self.__get_docid_by_name(indexname)
         if is_new_doc:
             self._all_doc_count += 1
@@ -71,8 +71,8 @@ class WizIndex(object):
     def update_notelist(self):
         wiz_note_set = {}
         for i in self._docname_docid:
-            docbasename = i # extract_f9f47a2a-c235-4c02-b9f1-ea7d1eb321d1
-            docbasename = i.replace("extract_", "")
+            docbasename = i # page_f9f47a2a-c235-4c02-b9f1-ea7d1eb321d1
+            docbasename = i.replace("page_", "")
             wiz_note_zip = "{%s}" % (docbasename)
             wiz_note_set[wiz_note_zip] = 1
         fp = open("./.wiz_note_set.json", "w+")
@@ -86,7 +86,7 @@ class WizIndex(object):
         fp.close()
 
     def delete_index(self, notename):
-        # notename = extract_7fffa137-579e-49db-973e-d5f282875c59
+        # notename = page_7fffa137-579e-49db-973e-d5f282875c59
         if notename not in self._docname_docid:
             return
         for i in self._docname_docid[notename]:
@@ -97,7 +97,7 @@ class WizIndex(object):
         is_new_doc = False
         # ./abc/uuid/index.html -> uuid -> docid
         docbasename = os.path.basename(os.path.dirname(indexname))
-        # docbasename = "extract_f9f47a2a-c235-4c02-b9f1-ea7d1eb321d1"
+        # docbasename = "page_f9f47a2a-c235-4c02-b9f1-ea7d1eb321d1"
 
         if docbasename in self._docname_docid:
             self._invalid_docid[self._docname_docid[docbasename][-1]] = 1
@@ -110,7 +110,7 @@ class WizIndex(object):
         return self._docname_docid[docbasename][-1], is_new_doc 
 
     def __index_list(self):
-        li = glob.glob('./notes/extract_*/*.word')
+        li = glob.glob('./notes/page_*/*.word')
         if len(li) <= 10:
             print "Warning: Need wordseg for all html" 
         return li
@@ -416,6 +416,7 @@ class WizIndex(object):
         for i in result_list:
             pos_list = i["poslist"].values()
             close_weight = self.__close_weight(i["docid"], pos_list)
+            print("aaaaaaaaaaaa 紧密度计算", close_weight, pos_list)
             i["score"] = self.__add_score(i["score"], close_weight)
         return result_list 
 
@@ -528,7 +529,7 @@ class WizIndex(object):
         hitlist = self.__bestmatch_change_score(query, hitlist)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("best 检索结果数: %s" % len(sort_docid))
+        logging.debug("best 检索结果数: %s, query: %s" % (len(sort_docid), query))
         return sort_docid
 
     def __search_well_match(self, query, limit=50):
@@ -552,7 +553,7 @@ class WizIndex(object):
         sort_docid = self.__sort_result(hitlist)
         # 截断
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("well 检索结果数: %s" % len(sort_docid))
+        logging.debug("well 检索结果数: %s, query: %s" % (len(sort_docid), query))
         return sort_docid 
 
     def __search_partmatch(self, query, limit=50):
@@ -579,7 +580,7 @@ class WizIndex(object):
         sort_docid = self.__sort_result(hitlist)
         # 截断
         sort_docid = self.__limit(sort_docid, limit)
-        logging.debug("part 检索结果数: %s" % len(sort_docid))
+        logging.debug("part 检索结果数: %s, query: %s" % (len(sort_docid), query))
         return sort_docid 
 
     def __format_to(self, result, fmt):
@@ -908,7 +909,8 @@ class WizIndex(object):
                 result["WELL_MATCH"] += self.__search_well_match(op["query"])
 
             if op["type"] == "PART_MATCH":
-                if len(result["BEST_MATCH"]) + len(result["WELL_MATCH"]) < 3:
+                # 全token匹配结果为0时, 使用部分匹配结果
+                if len(result["BEST_MATCH"]) + len(result["WELL_MATCH"]) == 0:
                     result["PART_MATCH"] += self.__search_partmatch(op["query"])
                 pass
 

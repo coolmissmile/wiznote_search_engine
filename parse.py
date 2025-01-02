@@ -1,5 +1,4 @@
 #! encoding: utf-8
-import bs4
 from bs4 import BeautifulSoup
 import os
 import sys
@@ -116,16 +115,14 @@ def parse_html(path):
 
         """
         # 提取所有文本, 每个tag是一行
-        for i in soup.body.find_all(True):
+        for i in soup.body:
             print i.get_text()
         """
         dstfilename = "%s.md" % title
         dstfile = open(dstfilename, "w+")
         print "Parse HTML", path, "->", "%s.md"%title
-        #dstfile.write(h2t.handle(html))
 
-        item = soup.body
-        for i in item:
+        for i in soup.body:
             dstfile.write(i.get_text())
             dstfile.write("\n")
 
@@ -162,7 +159,7 @@ def main():
 
 if __name__ == "__main__":
     """
-    find ./notes/extract_*  -type f   > .filelist
+    find ./notes/page_*  -type f   > .filelist
     python parse.py  .filelist
     """
     try:
