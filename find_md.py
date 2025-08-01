@@ -12,4 +12,4 @@ for i in fc:
     p = os.path.dirname(i) + "/*.md"
     l = glob.glob(p)
     for j in l:
-        print j
+        print(j)

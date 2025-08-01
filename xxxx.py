@@ -8,4 +8,4 @@ html = fp.read()
 
 soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
 for i in soup.body:
-    print i.get_text()
+    print(i.get_text())

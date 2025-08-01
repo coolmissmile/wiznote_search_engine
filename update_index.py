@@ -3,12 +3,11 @@ import sys
 import os
 import time
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import json
+import importlib
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 WEBPORT=9009
 def update_one_note(indexname):
     """
@@ -20,12 +19,12 @@ def update_one_note(indexname):
     request_body_json = json.dumps(request_body)
     request_header = {"a":"b"}
     urlpath = "http://127.0.0.1:%s/update_index"%(WEBPORT)
-    req = urllib2.Request(urlpath, data = request_body_json, headers = request_header)
-    response = urllib2.urlopen(req, timeout=2)
-    print response.code
+    req = urllib.request.Request(urlpath, data = request_body_json, headers = request_header)
+    response = urllib.request.urlopen(req, timeout=2)
+    print(response.code)
     text = response.read().decode('utf-8')
     result_json = json.loads(text, encoding='utf-8')
-    print result_json
+    print(result_json)
 
 
 if __name__ == "__main__":

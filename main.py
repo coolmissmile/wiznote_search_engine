@@ -7,15 +7,13 @@ import glob
 import itertools
 import copy
 import jieba
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import web
 import search_engine as wizsearch
 from string import Template
 import markdown
+import importlib
 
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 urls = (
     '/file/(.+)', 'somehtml',
@@ -118,7 +116,7 @@ $SEARCHRESULT
 class update_index:
     def POST(self):
         request = json.loads(web.data())
-        print request
+        print(request)
         if "index" not in request:
             return """{"code": 404, "reason": "no input arg in request"}"""
         web.wiz_db.update_index(request["index"])
@@ -126,13 +124,13 @@ class update_index:
 
 class update_notelist:
     def GET(self):
-        print "update_notelist........."
+        print("update_notelist.........")
         web.wiz_db.update_notelist()
         return """{"code": 200, "reason": "SUCC"}"""
 
 class delete_index:
     def DELETE(self, notename):
-        print "delete_index .........", notename
+        print("delete_index .........", notename)
         search_note_name = "page_%s" % (notename)
         # page_7fffa137-579e-49db-973e-d5f282875c59
         web.wiz_db.delete_index(search_note_name)
@@ -140,7 +138,7 @@ class delete_index:
 
 class static_file:
     def GET(self, name):
-        print name 
+        print(name) 
         return open('static/' + name).read()
 
 class somehtml:
@@ -160,7 +158,7 @@ class somehtml:
 
 
         ret = markdown.markdown(mdstr, extensions = exts)
-        print ret
+        print(ret)
         return html % ret
 
     def GET(self, name):
@@ -216,18 +214,6 @@ class search(object):
 
             abstract = j["abstract"]
 
-            if isinstance(dochref, unicode):
-                dochref = dochref.encode('utf-8')
-
-            if isinstance(anchor, unicode):
-                anchor = anchor.encode('utf-8')
-
-            if isinstance(wizhref, unicode):
-                wizhref = wizhref.encode('utf-8')
-
-            if isinstance(abstract, unicode):
-                abstract = abstract.encode('utf-8')
-
             result_html += one_template % (dochref, anchor, wizhref, abstract)
             result_html += "\n"
 
@@ -239,7 +225,7 @@ class search(object):
             timeused = float('%0.4f'%timeused)
             SEARCH_STATUS='''<div class="topstatus"><p>共找到 %s 条结果, 耗时 %s 秒</p></div>''' % (result_count, timeused)
 
-        r = templ.substitute(SEARCH_STATUS=SEARCH_STATUS, SEARCHRESULT=result_html, INPUTVALUE='''value="%s" '''%ori_query.encode('utf-8'))
+        r = templ.substitute(SEARCH_STATUS=SEARCH_STATUS, SEARCHRESULT=result_html, INPUTVALUE='''value="%s" '''%ori_query)
         return r
 
     def return_data(self, result):
@@ -259,8 +245,8 @@ class search(object):
     def real_search(self):
         args = web.input()
         web.search_start_time = time.time()
-        print "input:", web.input()
-        print "webdata:", web.data()
+        print("input:", web.input())
+        print("webdata:", web.data())
 
         if "query" not in args:
             return self.return_home()
@@ -279,7 +265,7 @@ class search(object):
 
 if __name__ == "__main__":
     web.wiz_db = wizsearch.create_wiz_search()
-    print "init succ"
+    print("init succ")
 
     app.run()
 

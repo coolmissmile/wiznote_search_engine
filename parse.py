@@ -5,16 +5,14 @@ import sys
 import traceback
 import time
 import html2text
+import importlib
 
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 def _find_title_from_tag(soup, tagname, default):
     try:
         content = soup.find_all(tagname, limit=10)
         for i in content:
-            text = i.text.encode("utf-8")
+            text = i.text
             if ":" in text or "年" in text or "TOC" in text or "---" in text:
                 continue
             if len(text) < 64 and len(text) > 6:
@@ -48,7 +46,7 @@ def _find_title_from_tag(soup, tagname, default):
 def _find_title_from_body(soup, default):
     try:
         for i in soup.body.find_all(True):
-            text = i.text.encode("utf-8")
+            text = i.text
             if ":" in text or "年" in text or "TOC" in text or "---" in text:
                 continue
             if len(text) < 64 and len(text) > 6:
@@ -120,7 +118,7 @@ def parse_html(path):
         """
         dstfilename = "%s.md" % title
         dstfile = open(dstfilename, "w+")
-        print "Parse HTML", path, "->", "%s.md"%title
+        print("Parse HTML", path, "->", "%s.md"%title)
 
         for i in soup.body:
             dstfile.write(i.get_text())
@@ -128,10 +126,10 @@ def parse_html(path):
 
         dstfile.close()
     except Exception as e:
-        print "Error %s %s"%(e, path)
+        print("Error %s %s"%(e, path))
         exc_type, exc_value, exc_traceback_obj = sys.exc_info()
-        print "exc_type: %s" % exc_type
-        print "exc_value: %s" % exc_value
+        print("exc_type: %s" % exc_type)
+        print("exc_value: %s" % exc_value)
         #print "exc_traceback_obj: %s" % exc_traceback_obj
         traceback.print_tb(exc_traceback_obj)
 
@@ -166,7 +164,7 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         exc_type, exc_value, exc_traceback_obj = sys.exc_info()
-        print "exc_type: %s" % exc_type
-        print "exc_value: %s" % exc_value
+        print("exc_type: %s" % exc_type)
+        print("exc_value: %s" % exc_value)
         #print "exc_traceback_obj: %s" % exc_traceback_obj
         traceback.print_tb(exc_traceback_obj)

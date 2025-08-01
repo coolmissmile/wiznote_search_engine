@@ -10,11 +10,11 @@ import jieba
 import math
 import logging
 import traceback
+import importlib
+from functools import cmp_to_key
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 KEY_TERM_POS = 0
 KEY_TF_INDEX = 1
@@ -32,7 +32,7 @@ def print_backtrace():
     while True:
         if f is None:
             return
-        print " Frame:[%d] file:[%s] func:[%s] line:[%s]"%(i, f.f_code.co_filename, f.f_code.co_name, f.f_lineno)
+        print(" Frame:[%d] file:[%s] func:[%s] line:[%s]"%(i, f.f_code.co_filename, f.f_code.co_name, f.f_lineno))
         f = f.f_back
         i += 1
 
@@ -112,7 +112,7 @@ class WizIndex(object):
     def __index_list(self):
         li = glob.glob('./notes/page_*/*.word')
         if len(li) <= 10:
-            print "Warning: Need wordseg for all html" 
+            print("Warning: Need wordseg for all html") 
         return li
 
     def __extend_terms(self, terms):
@@ -128,12 +128,11 @@ class WizIndex(object):
                 result[terms[i] + terms[i+1] + terms[i+2]] = 1
                 result[terms[i] + terms[i+1] + terms[i+2] +  terms[i+3]] = 1
             i += 1
-        return result.keys()
+        return list(result.keys())
 
     def __build_one_page_attr(self, filename):
         # 构建正排信息
         docname = filename.replace(".word", ".md")
-        #ret = "%s/%s"%(os.getcwd(), docname.decode("utf-8").encode("utf-8") )
         ret = "%s/%s"%(os.getcwd(), docname)
         ret = ret.replace("/./", '/')
         return ret 
@@ -215,7 +214,7 @@ class WizIndex(object):
                     docattr[cc][KEY_TF_INDEX] = self.__change_score(docattr[cc][KEY_TF_INDEX], 0.01*len(c))
 
         except Exception as e:
-            print traceback.format_exc()
+            print(traceback.format_exc())
         return docattr
 
     def __build_one_page(self, docid, filename):
@@ -390,7 +389,7 @@ class WizIndex(object):
                 res[docid]["docid"] = docid 
                 # 该文档命了哪些term
                 res[docid]["hitterm"][term] = 1
-        return res.values()
+        return list(res.values())
 
     def _get_term_weight(self, query_terms):
         ori_terms = {}
@@ -414,9 +413,9 @@ class WizIndex(object):
     def _mod_score_by_close_weight(self, result_list):
         # 计算term之间紧密度
         for i in result_list:
-            pos_list = i["poslist"].values()
+            pos_list = list(i["poslist"].values())
             close_weight = self.__close_weight(i["docid"], pos_list)
-            print("aaaaaaaaaaaa 紧密度计算", close_weight, pos_list)
+            print(("aaaaaaaaaaaa 紧密度计算", close_weight, pos_list))
             i["score"] = self.__add_score(i["score"], close_weight)
         return result_list 
 
@@ -462,7 +461,7 @@ class WizIndex(object):
                 # 该文档命了哪些term
                 res[docid]["hitterm"][term] = 1
 
-        return res.values()
+        return list(res.values())
 
     def __avg_score(self, oldavg, w):
         """
@@ -507,7 +506,7 @@ class WizIndex(object):
         if hitlist is None:
             return []
         # sort hitlist by score
-        hitlist.sort(cmp=cmp_by_score)
+        hitlist.sort(key=cmp_to_key(cmp_by_score))
         return hitlist 
 
     def __trans_to_docfile(self, sort_doc_list):
@@ -525,7 +524,7 @@ class WizIndex(object):
         if len(query_result) == 0:
             return []
 
-        hitlist = query_result.values() 
+        hitlist = list(query_result.values()) 
         hitlist = self.__bestmatch_change_score(query, hitlist)
         sort_docid = self.__sort_result(hitlist)
         sort_docid = self.__limit(sort_docid, limit)
@@ -614,17 +613,17 @@ class WizIndex(object):
         matchtype = "BEST_MATCH"
         if matchtype in result:
             for i in result[matchtype]:
-                print matchtype, i["doc"], i["docid"], i["score"]
+                print(matchtype, i["doc"], i["docid"], i["score"])
 
         matchtype = "WELL_MATCH"
         if matchtype in result:
             for i in result[matchtype]:
-                print matchtype, i["doc"], i["docid"], i["score"]
+                print(matchtype, i["doc"], i["docid"], i["score"])
 
         matchtype = "PART_MATCH"
         if matchtype in result:
             for i in result[matchtype]:
-                print matchtype, i["doc"], i["docid"], i["score"]
+                print(matchtype, i["doc"], i["docid"], i["score"])
 
     def __filter_duplicate(self, result):
         res = {}
@@ -659,7 +658,6 @@ class WizIndex(object):
         query = query.strip()
         if query == "":
             return ""
-        query = query.encode("utf-8")
         query = query.lower()
         query = " ".join([i for i in query.split(" ") if i])
         return query
@@ -846,7 +844,6 @@ class WizIndex(object):
         cutquery = cutquery.replace("  ", " ")
         cutquery = cutquery.replace("  ", " ")
         cutquery = cutquery.replace(".", "")
-        cutquery = cutquery.encode('utf-8')
 
         r.append({"query": cutquery, "type": "WELL_MATCH"})
         r.append({"query": cutquery, "type": "PART_MATCH"})
@@ -940,14 +937,14 @@ class WizIndex(object):
 def create_wiz_search():
     db = WizIndex()
     db.build_index()
-    xxx = jieba.cut_for_search(u"中华人民共和国")
+    xxx = jieba.cut_for_search("中华人民共和国")
     yyy = ''.join(xxx)
     return db
 
 if __name__ == "__main__":
     db = create_wiz_search()
     while True:
-        print "Please input query:"
+        print("Please input query:")
         query = sys.stdin.readline()
         query = query.replace("\n", "")
         if query == "":

@@ -1,6 +1,6 @@
 # coding: utf-8
 """html2text: Turn HTML into equivalent Markdown-structured text."""
-from __future__ import division, unicode_literals
+
 
 import re
 import sys
@@ -26,8 +26,8 @@ from html2text.utils import (
 )
 
 try:
-    chr = unichr
-    nochr = unicode("")
+    chr = chr
+    nochr = str("")
 except NameError:
     # python3 uses chr
     nochr = str("")
@@ -789,7 +789,7 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.a = newa
 
             if self.abbr_list and force == "end":
-                for abbr, definition in self.abbr_list.items():
+                for abbr, definition in list(self.abbr_list.items()):
                     self.out("  *[" + abbr + "]: " + definition + "\n")
 
             self.p_p = 0

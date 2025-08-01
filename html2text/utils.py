@@ -11,7 +11,7 @@ def name2cp(k):
     return htmlentitydefs.name2codepoint[k]
 
 
-unifiable_n = {name2cp(k): v for k, v in config.UNIFIABLE.items() if k != "nbsp"}
+unifiable_n = {name2cp(k): v for k, v in list(config.UNIFIABLE.items()) if k != "nbsp"}
 
 
 def hn(tag):
@@ -188,7 +188,6 @@ def skipwrap(para, wrap_links, wrap_list_items):
 
 
 def wrapwrite(text):
-    text = text.encode("utf-8")
     try:  # Python3
         sys.stdout.buffer.write(text)
     except AttributeError:

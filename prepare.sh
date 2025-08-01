@@ -9,12 +9,6 @@ if [ ! -f .depend.success ];then
     which python || exit 255
 
     # check python version MUST be 2.7.x
-    pythonIS27=`python --version  2>&1 | grep -oc "2.7" `
-    if [ $pythonIS27 -eq 0 ];then
-        echo "Error: python MUST be 2.7.x"
-        exit 255
-    fi
-
 
     # check pip
     which pip || echo "Error: pip not found!"

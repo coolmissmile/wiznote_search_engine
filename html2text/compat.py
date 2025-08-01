@@ -1,9 +1,9 @@
 import sys
 
 if sys.version_info[0] == 2:
-    import htmlentitydefs
-    import urlparse
-    import HTMLParser
+    import html.entities
+    import urllib.parse
+    import html.parser
 else:
     import urllib.parse as urlparse
     import html.entities as htmlentitydefs

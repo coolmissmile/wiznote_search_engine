@@ -3,9 +3,10 @@ import jieba
 import os
 import sys
 import codecs
+import importlib
+import traceback
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+
 
 
 stopword = {}
@@ -30,7 +31,6 @@ def wordseg(path):
 
         tokenlist = []
         for i in seg_list:
-            i = i.encode("utf-8")
             i = i.replace(" ", "")
             i = i.replace("\n", "")
             i = i.replace("\r", "")
@@ -47,7 +47,7 @@ def wordseg(path):
 
         dstfile = path.replace(".md", "") + ".word"
         dst = codecs.open(dstfile, 'w+', encoding='utf-8')
-        print "Wrodseg ", path, dstfile, len(tokenlist)
+        print("Wrodseg ", path, dstfile, len(tokenlist))
 
         # dump to file
         for i in tokenlist:
@@ -58,7 +58,7 @@ def wordseg(path):
             dst.write("\n")
         dst.close()
     except Exception as e:
-        print "Error %s"%e
+        print("Error %s"%traceback.format_exc())
 
 
 def build_stop_word():
