@@ -8,7 +8,7 @@ if [ ! -f .depend.success ];then
     which python || echo "Error: python not found!"
     which python || exit 255
 
-    # check python version MUST be 2.7.x
+    # check python version MUST be 3.10
 
     # check pip
     which pip || echo "Error: pip not found!"

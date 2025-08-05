@@ -19,11 +19,11 @@ def update_one_note(indexname):
     request_body_json = json.dumps(request_body)
     request_header = {"a":"b"}
     urlpath = "http://127.0.0.1:%s/update_index"%(WEBPORT)
-    req = urllib.request.Request(urlpath, data = request_body_json, headers = request_header)
+    req = urllib.request.Request(urlpath, data = request_body_json.encode('utf-8'), headers = request_header)
     response = urllib.request.urlopen(req, timeout=2)
     print(response.code)
     text = response.read().decode('utf-8')
-    result_json = json.loads(text, encoding='utf-8')
+    result_json = json.loads(text)
     print(result_json)
 
 
