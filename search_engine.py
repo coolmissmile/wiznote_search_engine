@@ -415,7 +415,6 @@ class WizIndex(object):
         for i in result_list:
             pos_list = list(i["poslist"].values())
             close_weight = self.__close_weight(i["docid"], pos_list)
-            print(("aaaaaaaaaaaa 紧密度计算", close_weight, pos_list))
             i["score"] = self.__add_score(i["score"], close_weight)
         return result_list 
 

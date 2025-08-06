@@ -51,29 +51,13 @@ if [ "x${RUNMODE}" == "xALL" ];then
 fi
 
 # 解析 html 生成 text, 并行执行
-python ${WORKROOT}/parse.py  .htmllist 0 &
-p1=$!
-python ${WORKROOT}/parse.py  .htmllist 1 &
-p2=$!
-python ${WORKROOT}/parse.py  .htmllist 2 &
-p3=$!
-python ${WORKROOT}/parse.py  .htmllist 3 &
-p4=$!
-wait $p1 $p2 $p3 $p4
+python ${WORKROOT}/parse.py  .htmllist  
 
 
 > .mdlist && python ${WORKROOT}/find_md.py > .mdlist
 
 # 对 markdown 内容进行分词处理
-python ${WORKROOT}/wordseg.py .mdlist 0 &
-p1=$!
-python ${WORKROOT}/wordseg.py .mdlist 1 &
-p2=$!
-python ${WORKROOT}/wordseg.py .mdlist 2 &
-p3=$!
-python ${WORKROOT}/wordseg.py .mdlist 3 &
-p4=$!
-wait $p1 $p2 $p3 $p4
+python ${WORKROOT}/wordseg.py .mdlist  
 
 WEBPORT=9009
 

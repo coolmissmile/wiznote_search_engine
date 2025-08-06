@@ -144,6 +144,7 @@ def main():
         while True:
             ln = fd.readline()
             if not ln:
+                print("Ignore 1 %s"% ln)
                 break
             if block:
                 if hash(ln) % 4 != int(block):
@@ -151,6 +152,7 @@ def main():
 
             ln = ln.replace("\n", "")
             if ln == "":
+                print("Ignore 2 %s"% ln)
                 continue
             parse_html(ln)
         fd.close()
